@@ -480,6 +480,7 @@
 		<Compile Include="Core.cs" />
 		<Compile Include="Income.cs" />
 		<Compile Include="Managers.cs" />
+		<Compile Include="Preferences.cs" />
 	</ItemGroup>
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
