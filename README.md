@@ -9,6 +9,7 @@ Tired of grinding for cash after dropping thousands on a business? Want your inv
 - **Daily Automatic Payouts** - Businesses pay you automatically at 6:00 PM (18:00) in-game time
 - **Business-Specific Income** - Different businesses generate different income amounts
 - **In-Game Notifications** - Receive notifications showing how much money each business made
+- **Fully Configurable** - Customize income amounts and notifications to your preferences
 
 ## Installation
 
