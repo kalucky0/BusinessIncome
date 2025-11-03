@@ -1,6 +1,6 @@
 ﻿using MelonLoader;
 
-[assembly: MelonInfo(typeof(BusinessIncome.Core), "BusinessIncome", "1.0.0", "kalucky0", null)]
+[assembly: MelonInfo(typeof(BusinessIncome.Core), "BusinessIncome", "1.1.0", "kalucky0", null)]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BusinessIncome
