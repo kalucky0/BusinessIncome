@@ -6,10 +6,23 @@ Tired of grinding for cash after dropping thousands on a business? Want your inv
 
 ## What You Get
 
-- **Daily Automatic Payouts** - Businesses pay you automatically at 6:00 PM (18:00) in-game time
+- **Daily Automatic Payouts** - Businesses pay you automatically at a configurable in-game time (default 6:00 PM / 1800)
 - **Business-Specific Income** - Different businesses generate different income amounts
 - **In-Game Notifications** - Receive notifications showing how much money each business made
-- **Fully Configurable** - Customize income amounts and notifications to your preferences
+- **Fully Configurable** - Customize income amounts, payout time, and notifications to your preferences
+
+## Configuration
+
+Settings are stored in MelonPreferences under `BusinessIncome_Settings` and `BusinessIncome_Multipliers`.
+
+| Setting | Default | Description |
+|---|---|---|
+| `PayoutTime` | `1800` | Daily payout time in HHmm format (`1800` = 6:00 PM, `900` = 9:00 AM) |
+| `EnableNotifications` | `true` | Show income notifications per business |
+| `MinBaseIncome` | `100` | Minimum base income before multipliers |
+| `MaxBaseIncome` | `300` | Maximum base income before multipliers |
+
+Per-business income multipliers are available for Laundromat, Post Office, Car Wash, and Taco Ticklers.
 
 ## Installation
 
