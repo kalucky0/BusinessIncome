@@ -7,7 +7,11 @@ namespace BusinessIncome
 {
     public sealed class Core : MelonMod
     {
+        private const string MainSceneName = "Main";
+
         private Action _onMinutePass;
+        private bool _isSubscribed;
+        private int _lastPayoutDay = -1;
         private Preferences _prefs;
         private Income _income;
 
@@ -18,26 +22,51 @@ namespace BusinessIncome
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            if (sceneName != "Main" || !Managers.Get()) return;
+            if (sceneName != MainSceneName || !Managers.Get()) return;
 
             _income ??= new Income(_prefs);
 
-            _onMinutePass = OnMinutePass;
-            Managers.Time.onMinutePass.Add(_onMinutePass);
+            SubscribeToMinutePass();
         }
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
         {
-            if (!Managers.IsInitialized) return;
+            if (sceneName != MainSceneName) return;
 
-            Managers.Time.onMinutePass.Remove(_onMinutePass);
+            UnsubscribeFromMinutePass();
+
+            Managers.Reset();
+        }
+
+        private void SubscribeToMinutePass()
+        {
+            if (_isSubscribed) return;
+
+            _onMinutePass = OnMinutePass;
+            Managers.Time.onMinutePass.Add(_onMinutePass);
+            _isSubscribed = true;
+        }
+
+        private void UnsubscribeFromMinutePass()
+        {
+            if (!_isSubscribed || _onMinutePass == null) return;
+
+            if (Managers.Time != null)
+                Managers.Time.onMinutePass.Remove(_onMinutePass);
+
             _onMinutePass = null;
+            _isSubscribed = false;
         }
 
         private void OnMinutePass()
         {
-            if (Managers.Time.CurrentTime != 1759) return;
+            if (!Managers.IsInitialized) return;
+            if (Managers.Time.CurrentTime != _prefs.GetPayoutTime()) return;
 
+            int currentDay = Managers.Time.ElapsedDays;
+            if (currentDay == _lastPayoutDay) return;
+
+            _lastPayoutDay = currentDay;
             LoggerInstance.Msg("Payout time!");
             _income.TriggerPayouts();
         }
