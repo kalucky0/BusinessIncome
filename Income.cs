@@ -1,13 +1,18 @@
 ﻿using Il2CppScheduleOne.Money;
 using Il2CppScheduleOne.Property;
+using MelonLoader;
 using UnityEngine;
 
 namespace BusinessIncome
 {
     internal sealed class Income(Preferences prefs)
     {
-        private readonly Sprite _cashFront = FindCashSprite();
+        private const string CashSpriteName = "cash_front";
+
         private readonly Preferences _prefs = prefs;
+        private Sprite _cashFront;
+        private bool _warnedInvertedIncomeRange;
+        private bool _warnedMissingSprite;
 
         public void TriggerPayouts()
         {
@@ -17,7 +22,7 @@ namespace BusinessIncome
                 if (_prefs.EnableNotifications.Value)
                 {
                     string money = MoneyManager.ApplyMoneyTextColor($"${income}");
-                    Managers.Notifications.SendNotification(business.name, $"Made {money} today", _cashFront);
+                    Managers.Notifications.SendNotification(business.name, $"Made {money} today", GetCashSprite());
                 }
                 Managers.Money.CreateOnlineTransaction(business.propertyName, income, 1, "Income");
             }
@@ -27,30 +32,40 @@ namespace BusinessIncome
         {
             float minIncome = _prefs.MinBaseIncome.Value;
             float maxIncome = _prefs.MaxBaseIncome.Value;
-            float multiplier = GetIncomeMultiplier(business.PropertyName);
+
+            if (minIncome > maxIncome)
+            {
+                if (!_warnedInvertedIncomeRange)
+                {
+                    MelonLogger.Warning("MinBaseIncome is greater than MaxBaseIncome; values will be swapped");
+                    _warnedInvertedIncomeRange = true;
+                }
+
+                (minIncome, maxIncome) = (maxIncome, minIncome);
+            }
+
+            float multiplier = _prefs.GetMultiplier(business.PropertyName);
             return Mathf.RoundToInt(UnityEngine.Random.Range(minIncome, maxIncome) * multiplier);
         }
 
-        private float GetIncomeMultiplier(string businessName)
+        private Sprite GetCashSprite()
         {
-            return businessName switch
-            {
-                "Laundromat" => _prefs.LaundromatMultiplier.Value,
-                "Post Office" => _prefs.PostOfficeMultiplier.Value,
-                "Car Wash" => _prefs.CarWashMultiplier.Value,
-                "Taco Ticklers" => _prefs.TacoTicklersMultiplier.Value,
-                _ => 1f
-            };
-        }
+            if (_cashFront != null)
+                return _cashFront;
 
-        private static Sprite FindCashSprite()
-        {
-            Sprite[] sprites = Resources.FindObjectsOfTypeAll<Sprite>();
-
-            foreach (Sprite sprite in sprites)
+            foreach (Sprite sprite in Resources.FindObjectsOfTypeAll<Sprite>())
             {
-                if (sprite.name == "cash_front")
-                    return sprite;
+                if (sprite.name == CashSpriteName)
+                {
+                    _cashFront = sprite;
+                    return _cashFront;
+                }
+            }
+
+            if (!_warnedMissingSprite)
+            {
+                MelonLogger.Warning($"Could not find notification sprite '{CashSpriteName}'");
+                _warnedMissingSprite = true;
             }
 
             return null;
